@@ -50,6 +50,8 @@ class Store
   def initialize
     @memory = []
     @files  = {}
+    
+    Dir.mkdir('db') unless Dir.exist?('db')
   end
 
   # Adds an object to the store's memory.
