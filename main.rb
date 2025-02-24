@@ -29,8 +29,9 @@ class Todo
   #
   # @param json [String] the JSON string representing a todo
   # @return [Todo] the new Todo object
+  # TODO: Implement this function
   def self.from(json)
-    raise 'Implement'
+    raise 'Implement this function!'
   end
 
   # Gets the value of an instance variable.
