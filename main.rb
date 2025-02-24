@@ -1,5 +1,6 @@
 require 'net/http'
 require 'json'
+require 'cli/ui'
 
 class JsonPlaceholderAPI
   # Fetches a random todo item from the JSONPlaceholder API.
@@ -12,6 +13,7 @@ class JsonPlaceholderAPI
 end
 
 class Todo
+  attr_reader :id, :userId, :title, :completed
   # Initializes a new Todo object.
   #
   # @param userId [Integer] the ID of the user who owns the todo
@@ -96,11 +98,27 @@ class Store
 end
 
 store = Store.new
+CLI::UI::StdoutRouter.enable
 
-(1..10).each do
-  json = JsonPlaceholderAPI.get_random_todo_json
-  todo = Todo.from(json)
-  store.add(todo)
+CLI::UI::Frame.open("Todo's") do
+  CLI::UI::Spinner.spin("Fetching random todos") do |spinner|
+    10.times do
+      json = JsonPlaceholderAPI.get_random_todo_json
+      todo = Todo.from(json)
+      store.add(todo)
+      spinner.update_title("Fetching random todos (#{store.memory.length}/10)")
+      sleep(0.1)
+    end
+  end
+
+  store.memory.each do |todo|
+    CLI::UI::Frame.open(todo.title) do
+      CLI::UI::puts("ID:\t\t#{todo.id}")
+      CLI::UI::puts("UserID:\t#{todo.userId}")
+      CLI::UI::puts("Completed:\t#{todo.completed ? CLI::UI::fmt("{{v}}") : CLI::UI::fmt("{{x}}")}")
+    end
+  end
 end
 
+# CLI::UI::Prompt.ask("Do you want to save the todos to a file?") 
 store.save
